@@ -3291,6 +3291,29 @@ void MainWorker::decode_Temp(const int HwdID, const _eHardwareTypes HwdType, con
 		return;
 	}
 
+	// Compare value with previous value to see if it is sane
+	{
+		int nValue;
+		std::string sValue;
+		struct tm LastUpdateTime;
+
+		if (m_sql.GetLastValue(HwdID, ID.c_str(),Unit,devType,subType,nValue,sValue,LastUpdateTime))
+		{
+			time_t now = time(NULL);
+			time_t lastUpdate = mktime(&LastUpdateTime);
+			float t;
+
+			sscanf(sValue.c_str(),"%.1f",&t);
+			if (now - lastUpdate < 3600 && (t-temp > 10 || t-temp < -10))
+			{
+				WriteMessage(" Invalid temperature; differs more than 10 degrees from last value");
+				return;
+			}
+		}
+	}
+
+
+
 	float AddjValue=0.0f;
 	float AddjMulti=1.0f;
 	m_sql.GetAddjustment(HwdID, ID.c_str(),Unit,devType,subType,AddjValue,AddjMulti);
@@ -3435,6 +3458,25 @@ void MainWorker::decode_Hum(const int HwdID, const _eHardwareTypes HwdType, cons
 	{
 		WriteMessage(" Invalid Humidity");
 		return;
+	}
+
+	// Compare value with previous value to see if it is sane
+	{
+		int nValue;
+		std::string sValue;
+		struct tm LastUpdateTime;
+
+		if (m_sql.GetLastValue(HwdID, ID.c_str(),Unit,devType,subType,nValue,sValue,LastUpdateTime))
+		{
+			time_t now = time(NULL);
+			time_t lastUpdate = mktime(&LastUpdateTime);
+
+			if (now - lastUpdate < 3600 && (nValue-humidity > 10 || nValue-humidity < -10))
+			{
+				WriteMessage(" Invalid humidity; differs more than 10 points from last value");
+				return;
+			}
+		}
 	}
 
 	sprintf(szTmp,"%d",pResponse->HUM.humidity_status);
@@ -3600,6 +3642,36 @@ void MainWorker::decode_TempHum(const int HwdID, const _eHardwareTypes HwdType, 
 		WriteMessage(" Invalid Humidity");
 		return;
 	}
+
+	// Compare value with previous value to see if it is sane
+	{
+		int nValue;
+		std::string sValue;
+		struct tm LastUpdateTime;
+
+		if (m_sql.GetLastValue(HwdID, ID.c_str(),Unit,devType,subType,nValue,sValue,LastUpdateTime))
+		{
+			time_t now = time(NULL);
+			time_t lastUpdate = mktime(&LastUpdateTime);
+			float t;
+			float h;
+			int hs;
+
+			sscanf(sValue.c_str(),"%.1f;%d;%d",&t,&h,&hs);
+			if (now - lastUpdate < 3600 && (t-temp > 10 || t-temp < -10))
+			{
+				WriteMessage(" Invalid temperature; differs more than 10 degrees from last value");
+				return;
+			}
+			if (now - lastUpdate < 3600 && (h-Humidity > 10 || h-Humidity < -10))
+			{
+				WriteMessage(" Invalid humidity; differs more than 10 points from last value");
+				return;
+			}
+		}
+	}
+
+
 /*
 	AddjValue=0.0f;
 	AddjMulti=1.0f;
@@ -3824,6 +3896,44 @@ void MainWorker::decode_TempHumBaro(const int HwdID, const _eHardwareTypes HwdTy
 		}
 		sprintf(szTmp,"%.1f;%d;%d;%d;%d",temp,Humidity,HumidityStatus, barometer,forcast);
 	}
+
+	// Compare value with previous value to see if it is sane
+	{
+		int nValue;
+		std::string sValue;
+		struct tm LastUpdateTime;
+
+		if (m_sql.GetLastValue(HwdID, ID.c_str(),Unit,devType,subType,nValue,sValue,LastUpdateTime))
+		{
+			time_t now = time(NULL);
+			time_t lastUpdate = mktime(&LastUpdateTime);
+			float t;
+			float h;
+			int hs;
+			int b;
+			int f;
+
+			sscanf(sValue.c_str(),"%.1f;%d;%d;%d;%d",&t,&h,&hs,&b,&f);
+			if (now - lastUpdate < 3600 && (t-temp > 10 || t-temp < -10))
+			{
+				WriteMessage(" Invalid temperature; differs more than 10 degrees from last value");
+				return;
+			}
+			if (now - lastUpdate < 3600 && (h-Humidity > 10 || h-Humidity < -10))
+			{
+				WriteMessage(" Invalid humidity; differs more than 10 points from last value");
+				return;
+			}
+			if (now - lastUpdate < 3600 && (b-barometer > 10 || b-barometer < -10))
+			{
+				WriteMessage(" Invalid barometer; differs more than 10 mbar from last value");
+				return;
+			}
+		}
+	}
+
+
+
 	uint64_t DevRowIdx=m_sql.UpdateValue(HwdID, ID.c_str(),Unit,devType,subType,SignalLevel,BatteryLevel,cmnd,szTmp, procResult.DeviceName);
 	if (DevRowIdx == -1)
 		return;
@@ -3961,6 +4071,36 @@ void MainWorker::decode_TempBaro(const int HwdID, const _eHardwareTypes HwdType,
 	m_sql.GetAddjustment2(HwdID, ID.c_str(),Unit,devType,subType,AddjValue,AddjMulti);
 	fbarometer+=AddjValue;
 
+
+	// Compare value with previous value to see if it is sane
+	{
+		int nValue;
+		std::string sValue;
+		struct tm LastUpdateTime;
+
+		if (m_sql.GetLastValue(HwdID, ID.c_str(),Unit,devType,subType,nValue,sValue,LastUpdateTime))
+		{
+			time_t now = time(NULL);
+			time_t lastUpdate = mktime(&LastUpdateTime);
+			float t;
+			float b;
+			int f;
+			float a;
+
+			sscanf(sValue.c_str(),"%.1f;%.1f;%d;%.2f",&t,&b,&f,&a);
+			if (now - lastUpdate < 3600 && (t-temp > 10 || t-temp < -10))
+			{
+				WriteMessage(" Invalid temperature; differs more than 10 degrees from last value");
+				return;
+			}
+			if (now - lastUpdate < 3600 && (b-fbarometer > 10 || b-fbarometer < -10))
+			{
+				WriteMessage(" Invalid barometer; differs more than 10 mbar from last value");
+				return;
+			}
+		}
+	}
+
 	sprintf(szTmp,"%.1f;%.1f;%d;%.2f",temp,fbarometer,forcast,pTempBaro->altitude);
 	uint64_t DevRowIdx=m_sql.UpdateValue(HwdID, ID.c_str(),Unit,devType,subType,SignalLevel,BatteryLevel,cmnd,szTmp, procResult.DeviceName);
 	if (DevRowIdx == -1)
@@ -4062,6 +4202,34 @@ void MainWorker::decode_TempRain(const int HwdID, const _eHardwareTypes HwdType,
 		return;
 	}
 	float TotalRain=float((pResponse->TEMP_RAIN.raintotal1 * 256) + pResponse->TEMP_RAIN.raintotal2) / 10.0f;
+
+	// Compare value with previous value to see if it is sane
+	{
+		int nValue;
+		std::string sValue;
+		struct tm LastUpdateTime;
+
+		if (m_sql.GetLastValue(HwdID, ID.c_str(),Unit,devType,subType,nValue,sValue,LastUpdateTime))
+		{
+			time_t now = time(NULL);
+			time_t lastUpdate = mktime(&LastUpdateTime);
+			float t;
+			float r;
+
+			sscanf(sValue.c_str(),"%.1f;%.1f",&t,&r);
+			if (now - lastUpdate < 3600 && (t-temp > 10 || t-temp < -10))
+			{
+				WriteMessage(" Invalid temperature; differs more than 10 degrees from last value");
+				return;
+			}
+			if (now - lastUpdate < 3600 && (r-TotalRain > 10 || r-TotalRain < -10))
+			{
+				WriteMessage(" Invalid rain; differs more than 10 mm from last value");
+				return;
+			}
+		}
+	}
+
 
 	sprintf(szTmp,"%.1f;%.1f",temp,TotalRain);
 	uint64_t DevRowIdx=m_sql.UpdateValue(HwdID, ID.c_str(),Unit,devType,subType,SignalLevel,BatteryLevel,cmnd,szTmp, procResult.DeviceName);
