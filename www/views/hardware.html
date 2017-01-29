@@ -632,6 +632,14 @@
             <td></td>
             <td><a class="btn-danger sub-tabs-apply" onclick="SetBleBoxSettings();" data-i18n="Apply Settings">Apply Settings</a></td>
         </tr>
+        <tr>
+            <td align="left" style="width:110px">
+                <a align="left" class="btnstyle3" id="autosearching" data-i18n="AutoSearching" onclick="BleBoxAutoSearchingNodes();">Auto Searching on:</a>
+            </td>
+            <td>
+                <input type="text" id="ipmask" style="width: 120px; padding: .2em;" class="text ui-widget-content ui-corner-all" />
+            </td>            
+        </tr>
     </table>
     <div class="page-header-small">
         <table border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -657,7 +665,10 @@
         <tr>
             <td>
                 <a class="btnstyle3-dis" id="nodeupdate" data-i18n="Update">Update</a>&nbsp;&nbsp;&nbsp;
-                <a class="btnstyle3-dis" id="nodedelete" data-i18n="Delete">Delete</a>
+                <a class="btnstyle3-dis" id="nodedelete" data-i18n="Delete">Delete</a>&nbsp;&nbsp;&nbsp;
+            </td>
+            <td align="right" style="width:200px">
+                <a align="left" class="btnstyle3" id="updatefirmware" data-i18n="Update devices firmware" onclick="BleBoxUpdateFirmware();">Update devices firmware</a>
             </td>
             <td align="right">
                 <a class="btnstyle3" id="nodelistrefresh" data-i18n="Clear" onclick="BleBoxClearNodes();">Clear</a>
@@ -1016,6 +1027,7 @@
 				<option value="1">RGBW</option>
 				<option value="2">RGB</option>
 				<option value="3">White</option>
+				<option value="4">RGBWW</option>
 			</select>
 			<br><br>
 			<input type="hidden" id="idx" name="idx" value="-1">
@@ -1109,11 +1121,11 @@
 					<td><input type="text" id="owfspath" style="width: 170px; padding: .2em;" class="text ui-widget-content ui-corner-all" value="/mnt/1wire" /></td>
 				</tr>
 				<tr>
-					<td align="right" style="width:110px"><label><span data-i18n="Sensor Poll Period">Sensor Poll Period (-1 = disabled)</span>:</label></td>
+					<td align="right" style="width:110px"><label><span data-i18n="Sensor Poll Period">Sensor Poll Period</span>:</label></td>
 					<td><input type="text" id="OneWireSensorPollPeriod" style="width: 200px; padding: .2em;" class="text ui-widget-content ui-corner-all" value="300000" />(<span data-i18n="milliseconds"></span>)</td>
 				</tr>
 				<tr>
-					<td align="right" style="width:110px"><label><span data-i18n="Switch Poll Period">Switch Poll Period (-1 = disabled)</span>:</label></td>
+					<td align="right" style="width:110px"><label><span data-i18n="Switch Poll Period">Switch Poll Period</span>:</label></td>
 					<td><input type="text" id="OneWireSwitchPollPeriod" style="width: 200px; padding: .2em;" class="text ui-widget-content ui-corner-all" value="100" />(<span data-i18n="milliseconds"></span>)</td>
 				</tr>
 			</table>
